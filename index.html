@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub City 3D</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { overflow: hidden; background: #0d1117; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #e6edf3; }
+canvas { display: block; width: 100vw; height: 100vh; }
+
+/* ── Landing ── */
+#landing {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 60%, rgba(10,30,80,.22) 0%, rgba(1,3,10,.97) 70%);
+}
+#landing h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: -1px; margin-bottom: 6px; }
+#landing h1 span { color: #44aaff; }
+#landing p  { color: #7d8590; font-size: .95rem; margin-bottom: 36px; }
+
+.row { display: flex; gap: 10px; width: 100%; max-width: 420px; }
+.gh-input {
+  flex: 1; background: #060c1a; border: 1px solid #1a2a44;
+  color: #e6edf3; padding: 11px 16px; border-radius: 8px; font-size: .95rem; outline: none;
+  transition: border-color .2s;
+}
+.gh-input:focus { border-color: #3388ff; box-shadow: 0 0 0 3px rgba(51,136,255,.18); }
+.gh-input::placeholder { color: #3a4a60; }
+.gh-btn {
+  background: #1155cc; border: 1px solid rgba(100,160,255,.2);
+  color: #fff; padding: 11px 22px; border-radius: 8px;
+  font-size: .9rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: background .15s;
+}
+.gh-btn:hover { background: #2266dd; }
+.gh-btn:disabled { opacity: .5; pointer-events: none; }
+#err { color: #f85149; font-size: .82rem; margin-top: 10px; min-height: 18px; }
+
+/* ── Loading ── */
+#loading {
+  position: fixed; inset: 0; z-index: 200;
+  display: none; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  background: rgba(1,3,10,.95);
+}
+#loading.on { display: flex; }
+.spinner { width: 36px; height: 36px; border: 2px solid #1a2a44; border-top-color: #3388ff; border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#load-text { color: #7d8590; font-size: .85rem; }
+
+/* ── HUD ── */
+#hud { display: none; }
+#hud.on { display: block; }
+
+#stats {
+  position: fixed; top: 16px; left: 16px;
+  background: rgba(1,4,14,.88); border: 1px solid #1a2a44;
+  border-radius: 12px; padding: 16px 20px; min-width: 210px;
+  backdrop-filter: blur(12px);
+}
+#stats .uname { font-size: 1rem; font-weight: 600; color: #44aaff; margin-bottom: 12px; }
+.srow { display: flex; justify-content: space-between; gap: 20px; font-size: .78rem; color: #7d8590; margin: 5px 0; }
+.srow b { color: #e6edf3; font-weight: 600; }
+
+#btn-new {
+  position: fixed; top: 16px; right: 16px;
+  background: rgba(1,4,14,.88); border: 1px solid #1a2a44;
+  color: #7d8590; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: .8rem;
+  transition: all .15s; backdrop-filter: blur(12px);
+}
+#btn-new:hover { color: #e6edf3; border-color: #3355aa; }
+
+/* ── Legend ── */
+#legend {
+  position: fixed; bottom: 60px; right: 16px;
+  background: rgba(1,4,14,.88); border: 1px solid #1a2a44;
+  border-radius: 8px; padding: 8px 14px;
+  display: flex; align-items: center; gap: 5px; font-size: .72rem; color: #7d8590;
+  backdrop-filter: blur(12px);
+}
+.lb { width: 13px; height: 13px; border-radius: 2px; }
+
+/* ── Tooltip ── */
+#tip {
+  position: fixed; pointer-events: none; display: none; z-index: 50;
+  background: rgba(1,4,14,.95); border: 1px solid #1a2a44;
+  border-radius: 6px; padding: 7px 13px; font-size: .78rem; white-space: nowrap;
+}
+#tip .cnt { color: #44aaff; font-weight: 700; }
+
+/* ── Hint ── */
+#hint {
+  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+  font-size: .7rem; color: rgba(125,133,144,.5); pointer-events: none; white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div id="landing">
+  <h1>GitHub <span>City</span> 3D</h1>
+  <p>Your contribution calendar — rendered as a living 3D city</p>
+  <div class="row">
+    <input class="gh-input" id="uinput" type="text" placeholder="e.g. torvalds" maxlength="39" autocomplete="off" spellcheck="false">
+    <button class="gh-btn" id="gbtn">Build City</button>
+  </div>
+  <div id="err"></div>
+  <p style="color:#3a4a60;font-size:.75rem;margin-top:18px">No account? <span id="demo-btn" style="color:#44aaff;cursor:pointer;text-decoration:underline">Try a demo →</span></p>
+</div>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div id="load-text">Fetching contributions…</div>
+</div>
+
+<div id="hud">
+  <div id="stats">
+    <div class="uname" id="s-user">@user</div>
+    <div class="srow"><span>Total contributions</span><b id="s-total">–</b></div>
+    <div class="srow"><span>Longest streak</span><b id="s-streak">–</b></div>
+    <div class="srow"><span>Best single day</span><b id="s-best">–</b></div>
+    <div class="srow"><span>Active days</span><b id="s-active">–</b></div>
+  </div>
+  <button id="btn-new">↩ New user</button>
+  <div id="legend">
+    <span>Less</span>
+    <div class="lb" style="background:#060c1e;border:1px solid #1a2a44"></div>
+    <div class="lb" style="background:#1a44aa"></div>
+    <div class="lb" style="background:#2266dd"></div>
+    <div class="lb" style="background:#11aaff"></div>
+    <div class="lb" style="background:#66ddff"></div>
+    <span>More</span>
+  </div>
+  <div id="hint">Drag to orbit · Scroll to zoom · Hover a building for details</div>
+</div>
+
+<div id="tip"></div>
+
+<script>
+// Runs before modules — confirms basic JS works
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('gbtn');
+  if (btn) {
+    btn.addEventListener('click', function() {
+      var v = document.getElementById('uinput').value.trim();
+      if (!v) { alert('Type a GitHub username first, then click Build City.'); }
+    });
+  }
+});
+window.addEventListener('error', function(e) {
+  document.getElementById('err').textContent = 'JS Error: ' + e.message + ' (' + e.filename + ':' + e.lineno + ')';
+  document.getElementById('err').style.display = 'block';
+});
+</script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "./node_modules/three/build/three.module.js",
+    "three/addons/": "./node_modules/three/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

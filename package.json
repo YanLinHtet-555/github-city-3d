@@ -1,0 +1,23 @@
+{
+  "name": "smart-city",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YanLinHtet-555/smart-city.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YanLinHtet-555/smart-city/issues"
+  },
+  "homepage": "https://github.com/YanLinHtet-555/smart-city#readme",
+  "dependencies": {
+    "three": "^0.166.1"
+  }
+}
