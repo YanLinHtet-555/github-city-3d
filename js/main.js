@@ -76,7 +76,7 @@ const WEEKS = 53;
 const DAYS  = 7;
 
 // ── Cyberpunk blue palette ────────────────────────────────────────────────────
-const B_COLOR = [0x010203, 0x010306, 0x010308, 0x010308, 0x010206];
+const B_COLOR = [0x060c18, 0x0a1428, 0x0c1830, 0x0e1c38, 0x101e40];
 const W_COLOR = [0x101010, 0x999988, 0xbbbbaa, 0xddddd0, 0xfffdf0];
 const E_INT   = [0, 1.8, 3.2, 5.5, 9.0];
 const ROOF_C  = [0x010204, 0x020408, 0x020408, 0x010308, 0x010206];
@@ -90,9 +90,9 @@ function winTex(lv) {
   const cv = document.createElement('canvas'); cv.width = 256; cv.height = 512;
   const ctx = cv.getContext('2d');
   ctx.fillStyle = '#010204'; ctx.fillRect(0, 0, 256, 512);
-  const cols = 6, rows = 22;
+  const cols = 4, rows = 14;
   const gx = 256 / cols, gy = 512 / rows;
-  const litPct = [0.02, 0.35, 0.52, 0.68, 0.82][lv];
+  const litPct = [0.01, 0.22, 0.38, 0.54, 0.68][lv];
   const WIN_COLS = [
     [255,255,255],[255,255,255],[255,255,255],[255,255,255],[255,253,248],
     [255,248,220],[255,242,200],[255,236,180],[255,245,225],[255,250,240],
@@ -135,8 +135,8 @@ function makeBuilding(count, lv, seed) {
   const sideMat = new THREE.MeshStandardMaterial({
     color: B_COLOR[lv], map: t,
     emissive: wc, emissiveMap: t, emissiveIntensity: E_INT[lv],
-    roughness: lv >= 3 ? 0.08 : 0.48,
-    metalness: lv >= 3 ? 0.82 : 0.22,
+    roughness: lv >= 3 ? 0.22 : 0.62,
+    metalness: lv >= 3 ? 0.55 : 0.18,
   });
   const roofMat = new THREE.MeshStandardMaterial({ color: ROOF_C[lv], roughness: 0.92 });
 
