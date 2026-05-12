@@ -40,9 +40,9 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(innerWidth, innerHeight),
-  1.6,   // strength
-  0.55,  // radius
-  0.18   // threshold
+  1.2,   // strength
+  0.5,   // radius
+  0.28   // threshold
 );
 composer.addPass(bloomPass);
 
@@ -77,8 +77,8 @@ const DAYS  = 7;
 
 // ── Cyberpunk blue palette ────────────────────────────────────────────────────
 const B_COLOR = [0x060c18, 0x0a1428, 0x0c1830, 0x0e1c38, 0x101e40];
-const W_COLOR = [0x080808, 0x887722, 0xaaaa33, 0xddcc55, 0xffeeaa];
-const E_INT   = [0, 1.4, 2.2, 3.5, 5.2];
+const W_COLOR = [0x080808, 0x443311, 0x554422, 0x665533, 0x887744];
+const E_INT   = [0, 0.6, 1.0, 1.5, 2.2];
 const ROOF_C  = [0x010204, 0x020408, 0x020408, 0x010308, 0x010206];
 
 function lvl(n) { return n===0?0 : n<=2?1 : n<=5?2 : n<=10?3 : 4; }
