@@ -76,7 +76,7 @@ const DAYS  = 7;
 // ── Cyberpunk blue palette ────────────────────────────────────────────────────
 const B_COLOR = [0x060c18, 0x0a1428, 0x0c1830, 0x0e1c38, 0x101e40];
 const W_COLOR = [0x080808, 0x3a2808, 0x4e3410, 0x664418, 0x7a5520];
-const E_INT   = [0, 0.7, 1.1, 1.7, 2.4];
+const E_INT   = [0, 1.0, 1.6, 2.4, 3.2];
 const ROOF_C  = [0x010204, 0x020408, 0x020408, 0x010308, 0x010206];
 
 function lvl(n) { return n===0?0 : n<=2?1 : n<=5?2 : n<=10?3 : 4; }
@@ -90,7 +90,7 @@ function winTex(lv) {
   ctx.fillStyle = '#010204'; ctx.fillRect(0, 0, 256, 512);
   const cols = 2, rows = 6;
   const gx = 256 / cols, gy = 512 / rows;
-  const litPct = [0.01, 0.18, 0.32, 0.46, 0.60][lv];
+  const litPct = [0.01, 0.24, 0.42, 0.58, 0.74][lv];
   const WIN_COLS = [
     [255,248,220],[255,240,170],[255,225,130],[255,210,90],
     [255,195,60], [255,175,40], [255,155,30], [240,230,190],
