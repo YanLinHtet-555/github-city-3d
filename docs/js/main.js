@@ -495,6 +495,11 @@ window.addEventListener('resize', () => {
   renderer.setSize(innerWidth,innerHeight); composer.setSize(innerWidth,innerHeight);
 });
 
+// ── Auto-load: ?user=xxx in URL, else owner's username ────────────────────────
+const _autoUser = new URLSearchParams(location.search).get('user') || 'YanLinHtet-555';
+input.value = _autoUser;
+go(_autoUser);
+
 // ── Loop ──────────────────────────────────────────────────────────────────────
 const clock = new THREE.Clock();
 (function loop() {
