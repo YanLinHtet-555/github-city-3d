@@ -434,7 +434,7 @@ function checkHover() {
     const ds = new Date(date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
     const cs = count===0 ? '<span style="color:#484f58">No contributions</span>'
       : `<span class="cnt">${count} contribution${count!==1?'s':''}</span>`;
-    tip.innerHTML = `${ds}<br>${cs}`; tip.style.display = 'block';
+    tip.innerHTML = `<span class="date">${ds}</span>${cs}`; tip.style.display = 'block';
   } else {
     if (hovB) { setGroupEmissive(hovB, E_INT[hovB.userData.lv]); hovB = null; }
     canvas.style.cursor = ''; tip.style.display = 'none';
