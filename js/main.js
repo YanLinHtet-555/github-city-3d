@@ -90,9 +90,9 @@ function winTex(lv) {
   const cv = document.createElement('canvas'); cv.width = 256; cv.height = 512;
   const ctx = cv.getContext('2d');
   ctx.fillStyle = '#010204'; ctx.fillRect(0, 0, 256, 512);
-  const cols = 10, rows = 40;
+  const cols = 6, rows = 22;
   const gx = 256 / cols, gy = 512 / rows;
-  const litPct = [0.04, 0.58, 0.74, 0.88, 0.96][lv];
+  const litPct = [0.02, 0.35, 0.52, 0.68, 0.82][lv];
   const WIN_COLS = [
     [255,255,255],[255,255,255],[255,255,255],[255,255,255],[255,253,248],
     [255,248,220],[255,242,200],[255,236,180],[255,245,225],[255,250,240],
