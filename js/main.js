@@ -77,8 +77,8 @@ const DAYS  = 7;
 
 // ── Cyberpunk blue palette ────────────────────────────────────────────────────
 const B_COLOR = [0x060c18, 0x0a1428, 0x0c1830, 0x0e1c38, 0x101e40];
-const W_COLOR = [0x080e20, 0x1a44aa, 0x2266dd, 0x3399ff, 0x66ccff];
-const E_INT   = [0, 0.9, 1.6, 2.4, 3.2];
+const W_COLOR = [0x080808, 0x887722, 0xaaaa33, 0xddcc55, 0xffeeaa];
+const E_INT   = [0, 1.4, 2.2, 3.5, 5.2];
 const ROOF_C  = [0x010204, 0x020408, 0x020408, 0x010308, 0x010206];
 
 function lvl(n) { return n===0?0 : n<=2?1 : n<=5?2 : n<=10?3 : 4; }
@@ -90,23 +90,22 @@ function winTex(lv) {
   const cv = document.createElement('canvas'); cv.width = 256; cv.height = 512;
   const ctx = cv.getContext('2d');
   ctx.fillStyle = '#010204'; ctx.fillRect(0, 0, 256, 512);
-  const cols = 6, rows = 20;
+  const cols = 3, rows = 9;
   const gx = 256 / cols, gy = 512 / rows;
-  const litPct = [0.02, 0.30, 0.48, 0.64, 0.78][lv];
+  const litPct = [0.01, 0.18, 0.32, 0.46, 0.60][lv];
   const WIN_COLS = [
-    [255,255,255],[220,235,255],[180,215,255],[100,200,255],[60,180,255],
-    [255,240,160],[255,210,80],[200,255,240],[255,180,100],[240,248,255],
+    [255,255,255],[255,248,180],[255,230,60],[255,200,40],
+    [80,220,255],[40,200,255],[255,140,30],[220,255,80],
   ];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
     const rnd = Math.random();
     if (rnd < litPct) {
       const wc = WIN_COLS[~~(Math.random() * WIN_COLS.length)];
-      const br = 0.6 + rnd * 0.4;
-      ctx.fillStyle = `rgba(${~~(wc[0]*br)},${~~(wc[1]*br)},${~~(wc[2]*br)},1)`;
+      ctx.fillStyle = `rgb(${wc[0]},${wc[1]},${wc[2]})`;
     } else {
-      ctx.fillStyle = 'rgba(0,0,0,1)';
+      ctx.fillStyle = 'rgb(0,0,0)';
     }
-    const wx = gx * 0.58, wy = gy * 0.50;
+    const wx = gx * 0.70, wy = gy * 0.64;
     ctx.fillRect(gx*c + (gx-wx)/2, gy*r + (gy-wy)/2, wx, wy);
   }
   const t = new THREE.CanvasTexture(cv);
@@ -313,26 +312,43 @@ function buildCity(contributions, username) {
     p.receiveShadow = true; city.add(p);
   }
 
-  // Road grid
-  const lineMat = new THREE.MeshBasicMaterial({ color: 0x0a1228 });
+  // Neon street grid lines
+  const lineMat = new THREE.MeshBasicMaterial({ color: 0x002244 });
   for (let i = 0; i <= WEEKS; i++) {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.04, D+0.2), lineMat);
-    m.rotation.x = -Math.PI/2; m.position.set(ox+i*CELL, 0.07, oz+D/2); city.add(m);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.05, D+0.2), lineMat);
+    m.rotation.x = -Math.PI/2; m.position.set(ox+i*CELL, 0.08, oz+D/2); city.add(m);
   }
   for (let i = 0; i <= DAYS; i++) {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(W+0.2, 0.04), lineMat);
-    m.rotation.x = -Math.PI/2; m.position.set(0, 0.07, oz+i*CELL); city.add(m);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(W+0.2, 0.05), lineMat);
+    m.rotation.x = -Math.PI/2; m.position.set(0, 0.08, oz+i*CELL); city.add(m);
   }
 
-  // Glowing blue border
-  const bdrMat = new THREE.MeshBasicMaterial({ color: 0x1155ff, transparent: true, opacity: 0.50 });
+  // Glowing neon border strips
   const bW = W+5.6, bD = D+7.8;
-  [[bW,0.06,0.12,0,0,oz-3.9],[bW,0.06,0.12,0,0,oz+D+3.9],
-   [0.12,0.06,bD,ox-2.8,0,0],[0.12,0.06,bD,ox+W+2.8,0,0]]
-  .forEach(([gw,gh,gd,gx,gy,gz]) => {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(gw,gh,gd), bdrMat);
-    m.position.set(gx, gy, gz);
-    city.add(m);
+  [[bW,0.07,0.14,0,0,oz-3.9,0x00ccff],[bW,0.07,0.14,0,0,oz+D+3.9,0x00ccff],
+   [0.14,0.07,bD,ox-2.8,0,0,0xff6600],[0.14,0.07,bD,ox+W+2.8,0,0,0xff6600]]
+  .forEach(([gw,gh,gd,gx,gy,gz,col]) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(gw,gh,gd),
+      new THREE.MeshBasicMaterial({ color: col }));
+    m.position.set(gx, gy, gz); city.add(m);
+  });
+
+  // Neon street puddle lights — pools of color on the reflective floor
+  const NEON = [0x00ccff, 0xff8800, 0xffee00, 0x00ffaa, 0xff3388];
+  [
+    [ox-2.5, oz+D*0.2], [ox-2.5, oz+D*0.8],
+    [ox+W+2.5, oz+D*0.3], [ox+W+2.5, oz+D*0.7],
+    [W*0.1, oz-3.5], [W*-0.1, oz+D+3.5],
+    [ox+W*0.3, oz-3.5], [ox+W*0.7, oz+D+3.5],
+  ].forEach(([x,z], i) => {
+    const col = NEON[i % NEON.length];
+    const pl = new THREE.PointLight(col, 5, 14, 2);
+    pl.position.set(x, 0.4, z); city.add(pl);
+    const disc = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.2, 2.2),
+      new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.12, depthWrite: false })
+    );
+    disc.rotation.x = -Math.PI/2; disc.position.set(x, 0.09, z); city.add(disc);
   });
 
   // Street lamps
