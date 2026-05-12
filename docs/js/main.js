@@ -76,7 +76,7 @@ const DAYS  = 7;
 // ── Cyberpunk blue palette ────────────────────────────────────────────────────
 const B_COLOR = [0x060c18, 0x0a1428, 0x0c1830, 0x0e1c38, 0x101e40];
 const W_COLOR = [0x080808, 0x443311, 0x554422, 0x665533, 0x887744];
-const E_INT   = [0, 0.6, 1.0, 1.5, 2.2];
+const E_INT   = [0, 0.8, 1.3, 2.0, 2.8];
 const ROOF_C  = [0x010204, 0x020408, 0x020408, 0x010308, 0x010206];
 
 function lvl(n) { return n===0?0 : n<=2?1 : n<=5?2 : n<=10?3 : 4; }
