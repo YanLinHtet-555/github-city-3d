@@ -10,7 +10,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.55;
+renderer.toneMappingExposure = 0.68;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -40,9 +40,9 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(innerWidth, innerHeight),
-  2.8,   // strength
-  0.45,  // radius
-  0.04   // threshold — low so even dim lights bloom
+  1.6,   // strength
+  0.55,  // radius
+  0.18   // threshold
 );
 composer.addPass(bloomPass);
 
@@ -78,7 +78,7 @@ const DAYS  = 7;
 // ── Cyberpunk blue palette ────────────────────────────────────────────────────
 const B_COLOR = [0x060c18, 0x0a1428, 0x0c1830, 0x0e1c38, 0x101e40];
 const W_COLOR = [0x080e20, 0x1a44aa, 0x2266dd, 0x3399ff, 0x66ccff];
-const E_INT   = [0, 1.8, 3.2, 5.5, 9.0];
+const E_INT   = [0, 0.9, 1.6, 2.4, 3.2];
 const ROOF_C  = [0x010204, 0x020408, 0x020408, 0x010308, 0x010206];
 
 function lvl(n) { return n===0?0 : n<=2?1 : n<=5?2 : n<=10?3 : 4; }
@@ -94,8 +94,8 @@ function winTex(lv) {
   const gx = 256 / cols, gy = 512 / rows;
   const litPct = [0.02, 0.30, 0.48, 0.64, 0.78][lv];
   const WIN_COLS = [
-    [210,225,255],[190,215,255],[230,240,255],[255,255,255],[170,205,255],
-    [205,235,255],[245,248,255],[160,200,255],[220,238,255],[200,220,255],
+    [255,255,255],[220,235,255],[180,215,255],[100,200,255],[60,180,255],
+    [255,240,160],[255,210,80],[200,255,240],[255,180,100],[240,248,255],
   ];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
     const rnd = Math.random();
@@ -104,9 +104,9 @@ function winTex(lv) {
       const br = 0.6 + rnd * 0.4;
       ctx.fillStyle = `rgba(${~~(wc[0]*br)},${~~(wc[1]*br)},${~~(wc[2]*br)},1)`;
     } else {
-      ctx.fillStyle = 'rgba(2,4,10,1)';
+      ctx.fillStyle = 'rgba(0,0,0,1)';
     }
-    const wx = gx * 0.52, wy = gy * 0.44;
+    const wx = gx * 0.58, wy = gy * 0.50;
     ctx.fillRect(gx*c + (gx-wx)/2, gy*r + (gy-wy)/2, wx, wy);
   }
   const t = new THREE.CanvasTexture(cv);
