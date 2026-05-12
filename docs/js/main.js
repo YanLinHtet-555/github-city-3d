@@ -75,7 +75,7 @@ const DAYS  = 7;
 
 // ── Cyberpunk blue palette ────────────────────────────────────────────────────
 const B_COLOR = [0x060c18, 0x0a1428, 0x0c1830, 0x0e1c38, 0x101e40];
-const W_COLOR = [0x101008, 0xaaaa44, 0xcccc66, 0xdddd88, 0xffffaa];
+const W_COLOR = [0x080e20, 0x1a44aa, 0x2266dd, 0x3399ff, 0x66ccff];
 const E_INT   = [0, 1.8, 3.2, 5.5, 9.0];
 const ROOF_C  = [0x010204, 0x020408, 0x020408, 0x010308, 0x010206];
 
@@ -88,12 +88,12 @@ function winTex(lv) {
   const cv = document.createElement('canvas'); cv.width = 256; cv.height = 512;
   const ctx = cv.getContext('2d');
   ctx.fillStyle = '#010204'; ctx.fillRect(0, 0, 256, 512);
-  const cols = 4, rows = 14;
+  const cols = 6, rows = 20;
   const gx = 256 / cols, gy = 512 / rows;
-  const litPct = [0.01, 0.22, 0.38, 0.54, 0.68][lv];
+  const litPct = [0.02, 0.30, 0.48, 0.64, 0.78][lv];
   const WIN_COLS = [
-    [255,255,255],[255,255,240],[255,252,180],[255,240,80],[255,200,40],
-    [180,240,255],[100,220,255],[255,160,40],[255,255,255],[220,255,255],
+    [210,225,255],[190,215,255],[230,240,255],[255,255,255],[170,205,255],
+    [205,235,255],[245,248,255],[160,200,255],[220,238,255],[200,220,255],
   ];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
     const rnd = Math.random();
@@ -271,11 +271,11 @@ function buildCity(contributions, username) {
   const W = WEEKS * CELL, D = DAYS * CELL;
   const ox = -W/2, oz = -D/2;
 
-  const gndMat = new THREE.MeshStandardMaterial({ color: 0x010306, roughness: 0.18, metalness: 0.75 });
+  const gndMat = new THREE.MeshStandardMaterial({ color: 0x010408, roughness: 0.04, metalness: 0.92, envMapIntensity: 1.4 });
   const gnd = new THREE.Mesh(new THREE.BoxGeometry(W+7, 0.45, D+9), gndMat);
   gnd.position.y = -0.23; gnd.receiveShadow = true; city.add(gnd);
 
-  const padMat = new THREE.MeshStandardMaterial({ color: 0x05080f, roughness: 0.54, metalness: 0.35 });
+  const padMat = new THREE.MeshStandardMaterial({ color: 0x04080e, roughness: 0.06, metalness: 0.88 });
   for (let wk = 0; wk < WEEKS; wk++) for (let d = 0; d < DAYS; d++) {
     const p = new THREE.Mesh(new THREE.BoxGeometry(BW+0.05,0.07,BW+0.05), padMat);
     p.position.set(ox+wk*CELL+CELL/2, 0.035, oz+d*CELL+CELL/2);
