@@ -483,9 +483,6 @@ btn.addEventListener('click', () => go(input.value));
 input.addEventListener('keydown', e => e.key==='Enter' && go(input.value));
 document.getElementById('demo-btn').addEventListener('click', () => { input.value='torvalds'; go('torvalds'); });
 
-// Auto-load fixed user on start
-input.value = 'YanLinHtet-555';
-go('YanLinHtet-555');
 document.getElementById('btn-new').addEventListener('click', () => {
   while (city.children.length) city.remove(city.children[0]);
   for (const d of _drones) scene.remove(d);
