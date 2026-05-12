@@ -10,14 +10,14 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.72;
+renderer.toneMappingExposure = 0.55;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // ── Scene ─────────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x010306);
-scene.fog = new THREE.FogExp2(0x010306, 0.006);
+scene.background = new THREE.Color(0x00020a);
+scene.fog = new THREE.FogExp2(0x00040e, 0.010);
 
 // ── Camera ────────────────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.1, 500);
@@ -40,18 +40,18 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(innerWidth, innerHeight),
-  1.9,   // strength
-  0.65,  // radius
-  0.08   // threshold — low so even dim lights bloom
+  2.8,   // strength
+  0.45,  // radius
+  0.04   // threshold — low so even dim lights bloom
 );
 composer.addPass(bloomPass);
 
 // ── Night lighting ────────────────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0x060e22, 4));
-const moon = new THREE.DirectionalLight(0x1122aa, 0.18);
+scene.add(new THREE.AmbientLight(0x040a1e, 3));
+const moon = new THREE.DirectionalLight(0x0a1888, 0.12);
 moon.position.set(-30, 100, -50);
 scene.add(moon);
-scene.add(new THREE.HemisphereLight(0x0a1530, 0x010306, 0.55));
+scene.add(new THREE.HemisphereLight(0x060e28, 0x00020a, 0.4));
 
 // ── Stars ─────────────────────────────────────────────────────────────────────
 {
@@ -76,10 +76,10 @@ const WEEKS = 53;
 const DAYS  = 7;
 
 // ── Cyberpunk blue palette ────────────────────────────────────────────────────
-const B_COLOR = [0x02040a, 0x03050c, 0x03050e, 0x02040e, 0x01030c]; // near-black facades
-const W_COLOR = [0x080e1e, 0x1a44aa, 0x2266dd, 0x11aaff, 0x66ddff]; // blue/cyan windows
-const E_INT   = [0,  1.1,  2.0,  3.2,  5.0];                        // emissive intensity
-const ROOF_C  = [0x010308, 0x03050c, 0x03040e, 0x02040e, 0x01030a];
+const B_COLOR = [0x010203, 0x010306, 0x010308, 0x010308, 0x010206];
+const W_COLOR = [0x0a1428, 0x2255cc, 0x3388ff, 0x55aaff, 0xaaddff];
+const E_INT   = [0, 1.8, 3.2, 5.5, 9.0];
+const ROOF_C  = [0x010204, 0x020408, 0x020408, 0x010308, 0x010206];
 
 function lvl(n) { return n===0?0 : n<=2?1 : n<=5?2 : n<=10?3 : 4; }
 
@@ -87,33 +87,27 @@ function lvl(n) { return n===0?0 : n<=2?1 : n<=5?2 : n<=10?3 : 4; }
 const _texCache = {};
 function winTex(lv) {
   if (_texCache[lv]) return _texCache[lv];
-  const cv = document.createElement('canvas'); cv.width = 128; cv.height = 512;
+  const cv = document.createElement('canvas'); cv.width = 256; cv.height = 512;
   const ctx = cv.getContext('2d');
-  ctx.fillStyle = '#020408'; ctx.fillRect(0, 0, 128, 512);
-
-  const cols = 5, rows = 26;
-  const gx = 128 / (cols + 1), gy = 512 / (rows + 1);
-  const litPct = [0.02, 0.40, 0.62, 0.78, 0.92][lv];
-
-  // Blue/cyan/white window color variants
+  ctx.fillStyle = '#010204'; ctx.fillRect(0, 0, 256, 512);
+  const cols = 10, rows = 40;
+  const gx = 256 / cols, gy = 512 / rows;
+  const litPct = [0.04, 0.58, 0.74, 0.88, 0.96][lv];
   const WIN_COLS = [
-    [28, 72, 200], [40, 100, 230], [20, 130, 255],
-    [50, 170, 255], [110, 200, 255], [180, 220, 255],
+    [200,225,255],[210,230,255],[180,215,255],[240,245,255],[255,255,255],
+    [160,210,255],[200,255,220],[180,200,255],[255,250,200],[220,240,255],
   ];
-
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const rnd = Math.random();
-      if (rnd < litPct) {
-        const wc = WIN_COLS[~~(Math.random() * WIN_COLS.length)];
-        const br = 0.45 + rnd * 0.55;
-        ctx.fillStyle = `rgba(${~~(wc[0]*br)},${~~(wc[1]*br)},${~~(wc[2]*br)},0.92)`;
-      } else {
-        ctx.fillStyle = 'rgba(3,6,14,0.98)';
-      }
-      const wx = gx * 0.56, wy = gy * 0.46;
-      ctx.fillRect(gx*(c+0.72) - wx/2, gy*(r+0.72) - wy/2, wx, wy);
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const rnd = Math.random();
+    if (rnd < litPct) {
+      const wc = WIN_COLS[~~(Math.random() * WIN_COLS.length)];
+      const br = 0.6 + rnd * 0.4;
+      ctx.fillStyle = `rgba(${~~(wc[0]*br)},${~~(wc[1]*br)},${~~(wc[2]*br)},1)`;
+    } else {
+      ctx.fillStyle = 'rgba(2,4,10,1)';
     }
+    const wx = gx * 0.52, wy = gy * 0.44;
+    ctx.fillRect(gx*c + (gx-wx)/2, gy*r + (gy-wy)/2, wx, wy);
   }
   const t = new THREE.CanvasTexture(cv);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
@@ -307,7 +301,7 @@ function buildCity(contributions, username) {
   const ox = -W/2, oz = -D/2;
 
   // Ground — dark reflective asphalt
-  const gndMat = new THREE.MeshStandardMaterial({ color: 0x030610, roughness: 0.48, metalness: 0.42 });
+  const gndMat = new THREE.MeshStandardMaterial({ color: 0x010306, roughness: 0.18, metalness: 0.75 });
   const gnd = new THREE.Mesh(new THREE.BoxGeometry(W+7, 0.45, D+9), gndMat);
   gnd.position.y = -0.23; gnd.receiveShadow = true; city.add(gnd);
 
