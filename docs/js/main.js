@@ -88,7 +88,7 @@ function winTex(lv) {
   const cv = document.createElement('canvas'); cv.width = 256; cv.height = 512;
   const ctx = cv.getContext('2d');
   ctx.fillStyle = '#010204'; ctx.fillRect(0, 0, 256, 512);
-  const cols = 3, rows = 9;
+  const cols = 2, rows = 6;
   const gx = 256 / cols, gy = 512 / rows;
   const litPct = [0.01, 0.18, 0.32, 0.46, 0.60][lv];
   const WIN_COLS = [
@@ -103,7 +103,7 @@ function winTex(lv) {
     } else {
       ctx.fillStyle = 'rgb(0,0,0)';
     }
-    const wx = gx * 0.86, wy = gy * 0.80;
+    const wx = gx * 0.90, wy = gy * 0.85;
     ctx.fillRect(gx*c + (gx-wx)/2, gy*r + (gy-wy)/2, wx, wy);
   }
   const t = new THREE.CanvasTexture(cv);
