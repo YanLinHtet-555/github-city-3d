@@ -103,7 +103,7 @@ function winTex(lv) {
     } else {
       ctx.fillStyle = 'rgb(0,0,0)';
     }
-    const wx = gx * 0.70, wy = gy * 0.64;
+    const wx = gx * 0.86, wy = gy * 0.80;
     ctx.fillRect(gx*c + (gx-wx)/2, gy*r + (gy-wy)/2, wx, wy);
   }
   const t = new THREE.CanvasTexture(cv);
