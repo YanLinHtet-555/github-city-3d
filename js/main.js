@@ -77,7 +77,7 @@ const DAYS  = 7;
 
 // ── Cyberpunk blue palette ────────────────────────────────────────────────────
 const B_COLOR = [0x060c18, 0x0a1428, 0x0c1830, 0x0e1c38, 0x101e40];
-const W_COLOR = [0x080808, 0x3a2808, 0x4e3410, 0x664418, 0x7a5520];
+const W_COLOR = [0x080808, 0x080e18, 0x0c1428, 0x101c38, 0x142248];
 const E_INT   = [0, 1.0, 1.6, 2.4, 3.2];
 const ROOF_C  = [0x010204, 0x020408, 0x020408, 0x010308, 0x010206];
 
@@ -94,8 +94,8 @@ function winTex(lv) {
   const gx = 256 / cols, gy = 512 / rows;
   const litPct = [0.01, 0.24, 0.42, 0.58, 0.74][lv];
   const WIN_COLS = [
-    [255,248,220],[255,240,170],[255,225,130],[255,210,90],
-    [255,195,60], [255,175,40], [255,155,30], [240,230,190],
+    [255,255,255],[220,240,255],[180,220,255],[120,190,255],
+    [255,240,60], [255,220,40], [255,200,20], [200,230,255],
   ];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
     const rnd = Math.random();
@@ -105,7 +105,7 @@ function winTex(lv) {
     } else {
       ctx.fillStyle = 'rgb(0,0,0)';
     }
-    const wx = gx * 0.90, wy = gy * 0.85;
+    const wx = gx * 0.42, wy = gy * 0.88;
     ctx.fillRect(gx*c + (gx-wx)/2, gy*r + (gy-wy)/2, wx, wy);
   }
   const t = new THREE.CanvasTexture(cv);
