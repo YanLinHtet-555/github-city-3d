@@ -10,24 +10,14 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.1;
+renderer.toneMappingExposure = 1.6;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // ── Scene ─────────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
-// Dawn gradient sky
-const _skyCv = document.createElement('canvas'); _skyCv.width = 1; _skyCv.height = 256;
-const _skyCtx = _skyCv.getContext('2d');
-const _skyGrad = _skyCtx.createLinearGradient(0, 0, 0, 256);
-_skyGrad.addColorStop(0.00, '#0e0618'); // zenith — deep purple
-_skyGrad.addColorStop(0.38, '#2a0c3a'); // upper sky
-_skyGrad.addColorStop(0.62, '#6a1a18'); // low sky dark red
-_skyGrad.addColorStop(0.80, '#c43a0e'); // horizon glow
-_skyGrad.addColorStop(1.00, '#ff7722'); // horizon orange
-_skyCtx.fillStyle = _skyGrad; _skyCtx.fillRect(0, 0, 1, 256);
-scene.background = new THREE.CanvasTexture(_skyCv);
-scene.fog = new THREE.FogExp2(0xaa3810, 0.006);
+scene.background = new THREE.Color(0x1e0830); // dawn — deep purple sky
+scene.fog = new THREE.FogExp2(0x8a2c0a, 0.005);
 
 // ── Camera ────────────────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.1, 500);
@@ -55,11 +45,11 @@ const bloomPass = new UnrealBloomPass(
 composer.addPass(bloomPass);
 
 // ── Dawn lighting ─────────────────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0xff8844, 4));
-const sun = new THREE.DirectionalLight(0xffaa55, 1.8);
-sun.position.set(120, 10, -150); // low on horizon
+scene.add(new THREE.AmbientLight(0xff9966, 12));
+const sun = new THREE.DirectionalLight(0xffcc88, 3.5);
+sun.position.set(120, 10, -150);
 scene.add(sun);
-scene.add(new THREE.HemisphereLight(0xff9966, 0x221108, 1.4));
+scene.add(new THREE.HemisphereLight(0xff8855, 0x331a08, 3.0));
 
 // ── Stars ─────────────────────────────────────────────────────────────────────
 {
