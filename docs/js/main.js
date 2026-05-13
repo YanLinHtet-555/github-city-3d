@@ -16,8 +16,8 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // ── Scene ─────────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x00020a);
-scene.fog = new THREE.FogExp2(0x00040e, 0.010);
+scene.background = new THREE.Color(0x04091a);
+scene.fog = new THREE.FogExp2(0x050c1e, 0.006);
 
 // ── Camera ────────────────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.1, 500);
@@ -45,11 +45,11 @@ const bloomPass = new UnrealBloomPass(
 composer.addPass(bloomPass);
 
 // ── Night lighting ────────────────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0x040a1e, 3));
-const moon = new THREE.DirectionalLight(0x0a1888, 0.12);
+scene.add(new THREE.AmbientLight(0x0a1840, 8));
+const moon = new THREE.DirectionalLight(0x2244bb, 0.5);
 moon.position.set(-30, 100, -50);
 scene.add(moon);
-scene.add(new THREE.HemisphereLight(0x060e28, 0x00020a, 0.4));
+scene.add(new THREE.HemisphereLight(0x1020aa, 0x020510, 1.2));
 
 // ── Stars ─────────────────────────────────────────────────────────────────────
 {
@@ -214,31 +214,37 @@ function makeBuilding(count, lv, seed) {
 
   // Spinning radar dish
   if (lv >= 2) {
-    const dMat = new THREE.MeshStandardMaterial({ color: 0x223344, roughness: 0.2, metalness: 0.95 });
-    const dish = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.04, 0.05, 8), dMat);
-    dish.position.y = h + 0.24;
-    _roofAnims.push({ type: 'spin', mesh: dish, speed: 0.5 + rng(0, 0.9), phase: rng(0, Math.PI * 2) });
+    const dMat = new THREE.MeshStandardMaterial({ color: 0x44aaff, emissive: 0x2255aa, emissiveIntensity: 2.0, roughness: 0.1, metalness: 0.95 });
+    const dish = new THREE.Mesh(new THREE.CylinderGeometry(fw * 0.30, fw * 0.08, 0.10, 8), dMat);
+    dish.position.y = h + 0.28;
+    _roofAnims.push({ type: 'spin', mesh: dish, speed: 0.6 + rng(0, 1.0), phase: rng(0, Math.PI * 2) });
     group.add(dish);
   }
 
   // Pulsing holographic ring
   if (lv >= 3 && h > 5) {
-    const rCol = lv === 4 ? 0x00ffcc : 0x0099ff;
-    const ringMat = new THREE.MeshBasicMaterial({ color: rCol, transparent: true, opacity: 0.7 });
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(fw * 0.40, 0.036, 4, 24), ringMat);
+    const rCol = lv === 4 ? 0x00ffcc : 0x00aaff;
+    const ringMat = new THREE.MeshBasicMaterial({ color: rCol, transparent: true, opacity: 0.9 });
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(fw * 0.52, 0.07, 6, 28), ringMat);
     ring.rotation.x = Math.PI / 2;
-    ring.position.y = h + 0.55;
+    ring.position.y = h + 0.7;
     _roofAnims.push({ type: 'pulse', mesh: ring, speed: 1.4 + rng(0, 1.2), phase: rng(0, Math.PI * 2) });
     group.add(ring);
   }
 
-  // Orbiting spire light
+  // Orbiting spire light + visible glowing orb
   if (lv === 4 && h > 14) {
-    const orbitLight = new THREE.PointLight(0x00ffaa, 4.0, 11);
-    const orbitR = fw * 0.28;
-    orbitLight.position.set(orbitR, h + 1.8, 0);
-    _roofAnims.push({ type: 'orbit', light: orbitLight, r: orbitR, speed: 0.6 + rng(0, 0.5), phase: rng(0, Math.PI * 2) });
+    const orbitLight = new THREE.PointLight(0x00ffaa, 6.0, 14);
+    const orbitOrb = new THREE.Mesh(
+      new THREE.SphereGeometry(0.14, 8, 6),
+      new THREE.MeshBasicMaterial({ color: 0x00ffaa })
+    );
+    const orbitR = fw * 0.40;
+    orbitLight.position.set(orbitR, h + 2.2, 0);
+    orbitOrb.position.set(orbitR, h + 2.2, 0);
+    _roofAnims.push({ type: 'orbit', light: orbitLight, orb: orbitOrb, r: orbitR, speed: 0.7 + rng(0, 0.5), phase: rng(0, Math.PI * 2) });
     group.add(orbitLight);
+    group.add(orbitOrb);
   }
 
   group.userData.h = h;
@@ -452,8 +458,9 @@ function tickRoofAnims(t) {
       a.mesh.material.opacity = 0.15 + 0.75 * v;
     } else if (a.type === 'orbit') {
       const angle = t * a.speed + a.phase;
-      a.light.position.x = Math.cos(angle) * a.r;
-      a.light.position.z = Math.sin(angle) * a.r;
+      const ox = Math.cos(angle) * a.r, oz = Math.sin(angle) * a.r;
+      a.light.position.x = ox; a.light.position.z = oz;
+      if (a.orb) { a.orb.position.x = ox; a.orb.position.z = oz; }
     }
   }
 }
