@@ -111,8 +111,9 @@ function winTex(lv) {
   return (_texCache[lv] = t);
 }
 
-// ── Blink meshes ──────────────────────────────────────────────────────────────
+// ── Blink meshes + rooftop anims ─────────────────────────────────────────────
 let _blinkMeshes = [];
+let _roofAnims = [];
 
 // ── Build one building ────────────────────────────────────────────────────────
 function makeBuilding(count, lv, seed) {
@@ -211,6 +212,35 @@ function makeBuilding(count, lv, seed) {
     const pl = new THREE.PointLight(0x2277ff, 1.8, 12); pl.position.y = h*0.5; group.add(pl);
   }
 
+  // Spinning radar dish
+  if (lv >= 2) {
+    const dMat = new THREE.MeshStandardMaterial({ color: 0x223344, roughness: 0.2, metalness: 0.95 });
+    const dish = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.04, 0.05, 8), dMat);
+    dish.position.y = h + 0.24;
+    _roofAnims.push({ type: 'spin', mesh: dish, speed: 0.5 + rng(0, 0.9), phase: rng(0, Math.PI * 2) });
+    group.add(dish);
+  }
+
+  // Pulsing holographic ring
+  if (lv >= 3 && h > 5) {
+    const rCol = lv === 4 ? 0x00ffcc : 0x0099ff;
+    const ringMat = new THREE.MeshBasicMaterial({ color: rCol, transparent: true, opacity: 0.7 });
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(fw * 0.40, 0.036, 4, 24), ringMat);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = h + 0.55;
+    _roofAnims.push({ type: 'pulse', mesh: ring, speed: 1.4 + rng(0, 1.2), phase: rng(0, Math.PI * 2) });
+    group.add(ring);
+  }
+
+  // Orbiting spire light
+  if (lv === 4 && h > 14) {
+    const orbitLight = new THREE.PointLight(0x00ffaa, 4.0, 11);
+    const orbitR = fw * 0.28;
+    orbitLight.position.set(orbitR, h + 1.8, 0);
+    _roofAnims.push({ type: 'orbit', light: orbitLight, r: orbitR, speed: 0.6 + rng(0, 0.5), phase: rng(0, Math.PI * 2) });
+    group.add(orbitLight);
+  }
+
   group.userData.h = h;
   return group;
 }
@@ -265,7 +295,7 @@ let buildings = [];
 function buildCity(contributions, username) {
   while (city.children.length) city.remove(city.children[0]);
   for (const d of _drones) scene.remove(d);
-  buildings = []; _blinkMeshes = []; _drones = [];
+  buildings = []; _blinkMeshes = []; _drones = []; _roofAnims = [];
 
   const W = WEEKS * CELL, D = DAYS * CELL;
   const ox = -W/2, oz = -D/2;
@@ -412,6 +442,22 @@ function tickBlink(dt) {
   for (const o of _blinkMeshes) o.material.opacity = on ? 1 : 0.05;
 }
 
+function tickRoofAnims(t) {
+  for (const a of _roofAnims) {
+    if (a.type === 'spin') {
+      a.mesh.rotation.y = t * a.speed + a.phase;
+    } else if (a.type === 'pulse') {
+      const v = 0.5 + 0.5 * Math.sin(t * a.speed + a.phase);
+      a.mesh.scale.set(0.75 + 0.5 * v, 1, 0.75 + 0.5 * v);
+      a.mesh.material.opacity = 0.15 + 0.75 * v;
+    } else if (a.type === 'orbit') {
+      const angle = t * a.speed + a.phase;
+      a.light.position.x = Math.cos(angle) * a.r;
+      a.light.position.z = Math.sin(angle) * a.r;
+    }
+  }
+}
+
 function tickDrones(dt) {
   for (const d of _drones) {
     d.userData.t += dt * d.userData.speed;
@@ -506,7 +552,7 @@ document.getElementById('demo-btn').addEventListener('click', () => { input.valu
 document.getElementById('btn-new').addEventListener('click', () => {
   while (city.children.length) city.remove(city.children[0]);
   for (const d of _drones) scene.remove(d);
-  _drones = []; buildings = []; hovB = null; _blinkMeshes = [];
+  _drones = []; buildings = []; hovB = null; _blinkMeshes = []; _roofAnims = [];
   hudEl.classList.remove('on'); landingEl.style.display = ''; btn.disabled = false; input.value = ''; input.focus();
 });
 
@@ -530,6 +576,7 @@ const clock = new THREE.Clock();
   tickAnim(performance.now());
   tickBlink(dt);
   tickDrones(dt);
+  tickRoofAnims(performance.now() / 1000);
   checkHover();
   composer.render();
 })();
