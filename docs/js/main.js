@@ -10,7 +10,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.82;
+renderer.toneMappingExposure = 1.1;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -40,7 +40,7 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(innerWidth, innerHeight),
-  1.8, 0.70, 0.28
+  2.4, 0.75, 0.22
 );
 composer.addPass(bloomPass);
 
@@ -76,7 +76,7 @@ const DAYS  = 7;
 // ── Cyberpunk blue palette ────────────────────────────────────────────────────
 const B_COLOR = [0x060c18, 0x0a1428, 0x0c1830, 0x0e1c38, 0x101e40];
 const W_COLOR = [0x080808, 0x080e18, 0x0c1428, 0x101c38, 0x142248];
-const E_INT   = [0, 2.5, 4.0, 6.0, 8.0];
+const E_INT   = [0, 4.0, 7.0, 10.0, 14.0];
 const ROOF_C  = [0x010204, 0x020408, 0x020408, 0x010308, 0x010206];
 
 function lvl(n) { return n===0?0 : n<=2?1 : n<=5?2 : n<=10?3 : 4; }
