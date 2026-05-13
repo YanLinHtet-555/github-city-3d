@@ -10,7 +10,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.68;
+renderer.toneMappingExposure = 0.82;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -40,7 +40,7 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(innerWidth, innerHeight),
-  1.2, 0.5, 0.28
+  1.8, 0.70, 0.28
 );
 composer.addPass(bloomPass);
 
@@ -128,8 +128,8 @@ function makeBuilding(count, lv, seed) {
   const sideMat = new THREE.MeshStandardMaterial({
     color: B_COLOR[lv], map: t,
     emissive: wc, emissiveMap: t, emissiveIntensity: E_INT[lv],
-    roughness: lv >= 3 ? 0.22 : 0.62,
-    metalness: lv >= 3 ? 0.55 : 0.18,
+    roughness: lv >= 3 ? 0.08 : 0.28,
+    metalness: lv >= 3 ? 0.80 : 0.55,
   });
   const roofMat = new THREE.MeshStandardMaterial({ color: ROOF_C[lv], roughness: 0.92 });
 
