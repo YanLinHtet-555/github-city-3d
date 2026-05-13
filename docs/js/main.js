@@ -203,6 +203,25 @@ function makeBuilding(count, lv, seed) {
       new THREE.MeshBasicMaterial({ color: lv === 4 ? 0x44ddff : 0x2288ff })
     );
     strip.position.y = h + 0.045; group.add(strip);
+
+    // Rotating searchlight beam sweeping across city
+    const beamH = 55;
+    const beamPivot = new THREE.Group();
+    beamPivot.position.y = h + aH + 0.15;
+    const beam = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05, beamH * 0.13, beamH, 12, 1, true),
+      new THREE.MeshBasicMaterial({ color: 0xccddff, transparent: true, opacity: 0.10, side: THREE.DoubleSide })
+    );
+    beam.position.y = -beamH / 2;
+    beam.rotation.z = Math.PI / 4.2; // ~43° tilt — reaches city floor
+    beamPivot.add(beam);
+    const beamGlow = new THREE.Mesh(
+      new THREE.SphereGeometry(0.18, 8, 6),
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+    beamPivot.add(beamGlow);
+    group.add(beamPivot);
+    _roofAnims.push({ type: 'spotlight', pivot: beamPivot, speed: 0.28 + rng(0, 0.25), phase: rng(0, Math.PI * 2) });
   }
 
   if (lv === 4) {
@@ -461,6 +480,8 @@ function tickRoofAnims(t) {
       const ox = Math.cos(angle) * a.r, oz = Math.sin(angle) * a.r;
       a.light.position.x = ox; a.light.position.z = oz;
       if (a.orb) { a.orb.position.x = ox; a.orb.position.z = oz; }
+    } else if (a.type === 'spotlight') {
+      a.pivot.rotation.y = t * a.speed + a.phase;
     }
   }
 }
