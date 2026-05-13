@@ -16,8 +16,18 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // ── Scene ─────────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x04091a);
-scene.fog = new THREE.FogExp2(0x050c1e, 0.006);
+// Dawn gradient sky
+const _skyCv = document.createElement('canvas'); _skyCv.width = 1; _skyCv.height = 256;
+const _skyCtx = _skyCv.getContext('2d');
+const _skyGrad = _skyCtx.createLinearGradient(0, 0, 0, 256);
+_skyGrad.addColorStop(0.00, '#0e0618'); // zenith — deep purple
+_skyGrad.addColorStop(0.38, '#2a0c3a'); // upper sky
+_skyGrad.addColorStop(0.62, '#6a1a18'); // low sky dark red
+_skyGrad.addColorStop(0.80, '#c43a0e'); // horizon glow
+_skyGrad.addColorStop(1.00, '#ff7722'); // horizon orange
+_skyCtx.fillStyle = _skyGrad; _skyCtx.fillRect(0, 0, 1, 256);
+scene.background = new THREE.CanvasTexture(_skyCv);
+scene.fog = new THREE.FogExp2(0xaa3810, 0.006);
 
 // ── Camera ────────────────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.1, 500);
@@ -44,12 +54,12 @@ const bloomPass = new UnrealBloomPass(
 );
 composer.addPass(bloomPass);
 
-// ── Night lighting ────────────────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0x0a1840, 8));
-const moon = new THREE.DirectionalLight(0x2244bb, 0.5);
-moon.position.set(-30, 100, -50);
-scene.add(moon);
-scene.add(new THREE.HemisphereLight(0x1020aa, 0x020510, 1.2));
+// ── Dawn lighting ─────────────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0xff8844, 4));
+const sun = new THREE.DirectionalLight(0xffaa55, 1.8);
+sun.position.set(120, 10, -150); // low on horizon
+scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xff9966, 0x221108, 1.4));
 
 // ── Stars ─────────────────────────────────────────────────────────────────────
 {
@@ -63,7 +73,7 @@ scene.add(new THREE.HemisphereLight(0x1020aa, 0x020510, 1.2));
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   scene.add(new THREE.Points(g, new THREE.PointsMaterial({
-    color: 0xaabbff, size: 0.85, sizeAttenuation: true, transparent: true, opacity: 0.88
+    color: 0xffccaa, size: 0.6, sizeAttenuation: true, transparent: true, opacity: 0.12
   })));
 }
 
@@ -75,7 +85,7 @@ const DAYS  = 7;
 
 // ── Cyberpunk blue palette ────────────────────────────────────────────────────
 const B_COLOR = [0x060c18, 0x0a1428, 0x0c1830, 0x0e1c38, 0x101e40];
-const W_COLOR = [0x080808, 0x080e18, 0x0c1428, 0x101c38, 0x142248];
+const W_COLOR = [0x080808, 0x1a0c04, 0x281408, 0x381a08, 0x4a2010];
 const E_INT   = [0, 4.0, 7.0, 10.0, 14.0];
 const ROOF_C  = [0x010204, 0x020408, 0x020408, 0x010308, 0x010206];
 
@@ -92,8 +102,8 @@ function winTex(lv) {
   const gx = 256 / cols, gy = 512 / rows;
   const litPct = [0.01, 0.32, 0.52, 0.68, 0.84][lv];
   const WIN_COLS = [
-    [255,255,255],[235,248,255],[210,238,255],[255,252,180],
-    [255,245,80], [255,235,50], [255,220,30], [225,242,255],
+    [255,248,220],[255,230,160],[255,210,100],[255,185,60],
+    [255,160,40], [240,200,120],[255,220,140],[220,180,80],
   ];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
     const rnd = Math.random();
@@ -200,7 +210,7 @@ function makeBuilding(count, lv, seed) {
 
     const strip = new THREE.Mesh(
       new THREE.BoxGeometry(fw*0.85, 0.09, fw*0.85),
-      new THREE.MeshBasicMaterial({ color: lv === 4 ? 0x44ddff : 0x2288ff })
+      new THREE.MeshBasicMaterial({ color: lv === 4 ? 0xffaa33 : 0xff7722 })
     );
     strip.position.y = h + 0.045; group.add(strip);
   }
@@ -223,7 +233,7 @@ function makeBuilding(count, lv, seed) {
 
   // Pulsing holographic ring
   if (lv >= 3 && h > 5) {
-    const rCol = lv === 4 ? 0x00ffcc : 0x00aaff;
+    const rCol = lv === 4 ? 0xffcc44 : 0xff8833;
     const ringMat = new THREE.MeshBasicMaterial({ color: rCol, transparent: true, opacity: 0.9 });
     const ring = new THREE.Mesh(new THREE.TorusGeometry(fw * 0.52, 0.07, 6, 28), ringMat);
     ring.rotation.x = Math.PI / 2;
@@ -234,10 +244,10 @@ function makeBuilding(count, lv, seed) {
 
   // Orbiting spire light + visible glowing orb
   if (lv === 4 && h > 14) {
-    const orbitLight = new THREE.PointLight(0x00ffaa, 6.0, 14);
+    const orbitLight = new THREE.PointLight(0xffaa44, 6.0, 14);
     const orbitOrb = new THREE.Mesh(
       new THREE.SphereGeometry(0.14, 8, 6),
-      new THREE.MeshBasicMaterial({ color: 0x00ffaa })
+      new THREE.MeshBasicMaterial({ color: 0xffcc66 })
     );
     const orbitR = fw * 0.40;
     orbitLight.position.set(orbitR, h + 2.2, 0);
@@ -330,8 +340,8 @@ function buildCity(contributions, username) {
 
   // Glowing neon border strips
   const bW = W+5.6, bD = D+7.8;
-  [[bW,0.07,0.14,0,0,oz-3.9,0x00ccff],[bW,0.07,0.14,0,0,oz+D+3.9,0x00ccff],
-   [0.14,0.07,bD,ox-2.8,0,0,0xff6600],[0.14,0.07,bD,ox+W+2.8,0,0,0xff6600]]
+  [[bW,0.07,0.14,0,0,oz-3.9,0xff8822],[bW,0.07,0.14,0,0,oz+D+3.9,0xff8822],
+   [0.14,0.07,bD,ox-2.8,0,0,0xff5511],[0.14,0.07,bD,ox+W+2.8,0,0,0xff5511]]
   .forEach(([gw,gh,gd,gx,gy,gz,col]) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(gw,gh,gd),
       new THREE.MeshBasicMaterial({ color: col }));
@@ -339,7 +349,7 @@ function buildCity(contributions, username) {
   });
 
   // Neon street puddle lights — pools of color on the reflective floor
-  const NEON = [0x00ccff, 0xff8800, 0xffee00, 0x00ffaa, 0xff3388];
+  const NEON = [0xff7722, 0xffaa33, 0xff5511, 0xffcc44, 0xff8833];
   [
     [ox-2.5, oz+D*0.2], [ox-2.5, oz+D*0.8],
     [ox+W+2.5, oz+D*0.3], [ox+W+2.5, oz+D*0.7],
